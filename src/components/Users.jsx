@@ -1,16 +1,15 @@
-import React, { use } from 'react';
+import React, { use, useState } from 'react';
 
-const Users = ({usersPromise}) => {
+const Users = ({ usersPromise }) => {
     const initialUsers = use(usersPromise);
-    console.log(initialUsers);
+    const [users, setUsers] = useState(initialUsers);
+
     const handleAddUser = e => {
         e.preventDefault();
         const name = e.target.name.value;
         const email = e.target.email.value;
-        const newUser = {name, email};
-        console.log(newUser);
+        const newUser = { name, email };
 
-        //create user in the database
         fetch('http://localhost:3000/users', {
             method: 'POST',
             headers: {
@@ -20,24 +19,38 @@ const Users = ({usersPromise}) => {
         })
         .then(res => res.json())
         .then(data => {
-            console.log('Data after createing user in the db', data);
-            if(data.insertedId){
+            console.log('Data after creating user in the db', data);
+            if (data.insertedId) {
                 alert('User added successfully.');
+                const addedUser = { _id: data.insertedId, ...newUser };
+                setUsers([...users, addedUser]); 
+                
                 e.target.reset();
             }
         })
     }
+
     return (
         <div>
             <div>
-            {/* Add users */}
                 <form onSubmit={handleAddUser}>
-                    <input type="text" name="name" />
+                    <input type="text" name="name" placeholder="Name" required />
                     <br />
-                    <input type="email" name="email" />
+                    <input type="email" name="email" placeholder="Email" required />
                     <br />
                     <input type="submit" value="Add User" />
                 </form>
+            </div>
+
+            {/* View Users */}
+            <div>
+                {
+                    users.map(user => (
+                        <p key={user._id}>
+                            {user.name}: {user.email}
+                        </p>
+                    ))
+                }
             </div>
         </div>
     );
