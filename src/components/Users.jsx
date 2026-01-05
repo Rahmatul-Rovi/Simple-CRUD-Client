@@ -21,6 +21,9 @@ const Users = ({ usersPromise }) => {
         .then(data => {
             console.log('Data after creating user in the db', data);
             if (data.insertedId) {
+                newUser._id = data.insertedId;
+                const newUsers = [...users, newUser];
+                setUsers(newUsers);
                 alert('User added successfully.');
                 const addedUser = { _id: data.insertedId, ...newUser };
                 setUsers([...users, addedUser]); 
@@ -30,6 +33,19 @@ const Users = ({ usersPromise }) => {
         })
     }
 
+    const handleUserDelete = (id)=> {
+        console.log("Delete this user", id);
+        fetch(`http://localhost:3000/users/${id}`, {
+            method: 'DELETE',
+            headers: {
+                
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("After delete data", data);
+        })
+    }
     return (
         <div>
             <div>
@@ -48,6 +64,7 @@ const Users = ({ usersPromise }) => {
                     users.map(user => (
                         <p key={user._id}>
                             {user.name}: {user.email}
+                            <button onClick={()=> handleUserDelete(user._id)}>X</button>
                         </p>
                     ))
                 }
